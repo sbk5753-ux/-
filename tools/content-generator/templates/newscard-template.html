@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body {
+    margin: 0; padding: 0;
+    width: 1080px; height: 1350px;
+    overflow: hidden;
+  }
+  body {
+    position: relative;
+    font-family: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", "Pretendard",
+      "Apple SD Gothic Neo", sans-serif;
+    background: #0b0b0f;
+  }
+  .photo {
+    position: absolute;
+    inset: 0;
+    width: 1080px;
+    height: 1350px;
+    object-fit: cover;
+  }
+  .photo-placeholder {
+    position: absolute;
+    inset: 0;
+    width: 1080px;
+    height: 1350px;
+    background: linear-gradient(135deg, #23232b, #101014);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4a4a55;
+    font-size: 28px;
+    letter-spacing: 2px;
+  }
+  .scrim {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 62%;
+    background: linear-gradient(180deg, rgba(10,10,14,0) 0%, rgba(8,8,11,0.55) 30%, rgba(6,6,9,0.96) 78%, #06060a 100%);
+  }
+  .content {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 0 56px 64px;
+    box-sizing: border-box;
+    color: #f5f5f7;
+  }
+  .category {
+    display: inline-block;
+    background: #e0273f;
+    color: #fff;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: 2px;
+    padding: 6px 18px;
+    margin-bottom: 22px;
+  }
+  h1 {
+    font-size: 56px;
+    line-height: 1.35;
+    font-weight: 800;
+    margin: 0 0 30px 0;
+    white-space: pre-line;
+  }
+  h1 .highlight {
+    color: #ff4d5e;
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 30px;
+    line-height: 1.65;
+    color: #d8d8de;
+  }
+  ul li {
+    margin-bottom: 10px;
+    padding-left: 30px;
+    position: relative;
+  }
+  ul li::before {
+    content: "・";
+    position: absolute;
+    left: 0;
+    color: #ff4d5e;
+  }
+  .brand {
+    position: absolute;
+    top: 48px;
+    left: 56px;
+    font-size: 26px;
+    font-weight: 700;
+    color: #f5f5f7;
+    letter-spacing: 3px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  }
+</style>
+</head>
+<body>
+  {{PHOTO_TAG}}
+  <div class="scrim"></div>
+  <div class="brand">{{BRAND}}</div>
+  <div class="content">
+    <span class="category">{{CATEGORY}}</span>
+    <h1><span class="highlight">{{HEADLINE_HIGHLIGHT}}</span>{{HEADLINE_REST}}</h1>
+    <ul>
+      {{FACTS}}
+    </ul>
+  </div>
+</body>
+</html>

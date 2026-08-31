@@ -1,20 +1,21 @@
 # 지금 시작하기 — 4개 채널 순서대로
 
-요청하신 순서대로: **① 일본 카드뉴스 인스타 → ② 네이버 블로그 → ③ 온라인 쇼핑몰 → ④ 유튜브 랭킹 쇼츠**. 하나씩 오늘 바로 실행할 수 있는 체크리스트입니다. 순서대로 하나 끝내고 다음으로 넘어가도 되고, 동시에 진행해도 됩니다.
+요청하신 순서대로: **① 일본어 뉴스카드 인스타 → ② 네이버 블로그 → ③ 온라인 쇼핑몰 → ④ 유튜브 쇼츠(밈 자막 컴필레이션)**. 하나씩 오늘 바로 실행할 수 있는 체크리스트입니다. 순서대로 하나 끝내고 다음으로 넘어가도 되고, 동시에 진행해도 됩니다.
 
 ---
 
-## ① 일본 카드뉴스 인스타그램
+## ① 일본어 뉴스카드 인스타그램
 
 - [ ] 인스타 계정을 **프로페셔널(비즈니스/크리에이터)** 계정으로 전환 (설정 > 계정 유형)
 - [ ] Facebook 페이지 만들고 인스타 계정과 연결
 - [ ] [Meta for Developers](https://developers.facebook.com)에서 앱 생성 → Instagram Graph API 권한 추가, 장기 액세스 토큰 발급 (`tools/instagram-publish/README.md` 1번 참고)
-- [ ] 첫 소재 하나 정해서 카드뉴스 생성 테스트:
+- [ ] 첫 소재 하나 정해서 뉴스카드 생성 테스트 (japna_issue 스타일: 어두운 배경 사진 + 카테고리 태그 + 강조 헤드라인 + 팩트, 일본어):
   ```bash
-  cd tools/content-generator && npm install
-  node generate-cardnews.mjs "첫 카드뉴스 주제"
+  cd tools/content-generator
+  node generate-cardnews.mjs "다룰 뉴스/소재" --category "話題" --photo ./사진.jpg
   ```
 - [ ] `.env`에 토큰 넣고 `tools/instagram-publish/publish.mjs`로 첫 발행 테스트
+- [ ] 사진을 쓸 때는 저작권/초상권 확인 필수 (`tools/content-generator/README.md`의 "사진 사용 시 주의" 참고)
 
 **2026년 인스타 알고리즘 핵심 (반드시 반영)**
 - 좋아요보다 **저장·공유가 3~5배 더 강한 신호**입니다. 캡션에 "저장해두고 나중에 보세요" 같은 저장 유도 문구를 넣으세요.
@@ -59,21 +60,20 @@
 
 ---
 
-## ④ 유튜브 랭킹 쇼츠 자동화
+## ④ 유튜브 쇼츠 자동화 (밈 자막 컴필레이션, simkoongzzal 스타일)
 
-- [ ] [VOICEVOX](https://voicevox.hiroshiba.jp) 앱 다운로드 및 실행 (무료 일본어 TTS)
 - [ ] [ffmpeg](https://ffmpeg.org) 설치
-- [ ] 첫 대본 생성:
+- [ ] 한국어 폰트 확인 (Noto Sans CJK, 나눔고딕 등 — 없으면 `apt install fonts-nanum` 등으로 설치)
+- [ ] 첫 자막 생성:
   ```bash
   cd tools/youtube-shorts
-  cp .env.example .env   # ANTHROPIC_API_KEY 있으면 자동 대본 생성
-  node generate-script.mjs "첫 랭킹 주제 TOP5"
+  cp .env.example .env   # ANTHROPIC_API_KEY 있으면 자동 자막 생성
+  node generate-script.mjs "첫 테마 (예: 안 웃을 수 없는 동물들)" --count 6
   ```
-- [ ] 대본을 열어 훅/랭킹 코멘트에 **채널만의 말투·의견**을 직접 더하기 (2026년 유튜브 정책상 필수 — `docs/AUTOMATION-GUIDE.md` 3-2절 참고)
-- [ ] 음성 합성 + 영상 합성:
+- [ ] 생성된 `script.json`의 `footage_hint`를 참고해서 영상 클립을 직접 준비 (직접 촬영 권장 — 저작권 안내는 `tools/youtube-shorts/README.md` 참고), `00.mp4`, `01.mp4` ... 이름으로 한 폴더에 모으기
+- [ ] 영상 합성:
   ```bash
-  node tts-voicevox.mjs --script output/.../script.json
-  node assemble-video.mjs --manifest output/.../audio-manifest.json
+  node assemble-video.mjs --script output/.../script.json --footage ./footage --brand "@내채널"
   ```
 - [ ] Google Cloud Console에서 OAuth 클라이언트 발급 → `tools/youtube-publish`로 첫 업로드 테스트 (처음엔 `--privacy private`로 비공개 테스트 업로드 권장)
 

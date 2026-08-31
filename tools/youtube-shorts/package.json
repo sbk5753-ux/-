@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "일본 랭킹형 유튜브 쇼츠 대본/음성/영상 자동 생성",
+  "description": "밈 자막 컴필레이션 쇼츠 자막/영상 자동 생성 (simkoongzzal 스타일)",
   "scripts": {
     "script": "node generate-script.mjs",
     "tts": "node tts-voicevox.mjs",

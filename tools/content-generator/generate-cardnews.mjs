@@ -1,9 +1,13 @@
 #!/usr/bin/env node
-// 일본어 카드뉴스 생성기
-// 사용법: node generate-cardnews.mjs "카페 라떼 아트 팁"
-//   1) ANTHROPIC_API_KEY가 있으면 카드별 일본어 카피를 AI로 생성
-//   2) puppeteer가 설치되어 있으면 카드마다 PNG(1080x1350)까지 렌더링
-//      (없으면 HTML/JSON까지만 생성 - 직접 열어서 스크린샷하거나 Canva에 옮겨 써도 됩니다)
+// 일본어 뉴스카드 생성기 (japna_issue 스타일: 어두운 배경 사진 + 카테고리 태그 +
+// 빨간 강조 헤드라인 + 팩트 불릿, 게시물 1개 = 뉴스 1건인 단일 이미지 포스트)
+//
+// 사용법:
+//   node generate-cardnews.mjs "다룰 소재/뉴스" [--category "スキャンダル"] [--photo ./사진.jpg]
+//
+//   ANTHROPIC_API_KEY가 있으면 카테고리/헤드라인/팩트를 일본어로 자동 생성합니다.
+//   --photo로 실제 사진을 지정하지 않으면 자리표시자 배경으로 렌더링됩니다
+//   (저작권 있는 뉴스/연예인 사진을 무단으로 캡처해 쓰지 마세요 — README 참고).
 
 import { writeFile, mkdir, readFile, readdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
@@ -13,25 +17,27 @@ import { promisify } from "node:util";
 
 const run = promisify(execFile);
 
-const topic = process.argv.slice(2).join(" ").trim();
+const { topic, options } = parseArgs(process.argv.slice(2));
 if (!topic) {
-  console.error('사용법: node generate-cardnews.mjs "주제"');
+  console.error('사용법: node generate-cardnews.mjs "소재" [--category "카테고리"] [--photo <이미지경로>]');
   process.exit(1);
 }
 
 const today = new Date().toISOString().slice(0, 10);
-const outDir = path.resolve("output", "cardnews", today);
+const slug = topic.replace(/[^\p{L}\p{N}\s-]/gu, "").trim().replace(/\s+/g, "-").toLowerCase();
+const outDir = path.resolve("output", "newscard", `${today}-${slug || "card"}`);
 await mkdir(outDir, { recursive: true });
 
 const apiKey = process.env.ANTHROPIC_API_KEY;
-const CARD_COUNT = 6;
+const BRAND = process.env.CARDNEWS_BRAND || "JAPAN ISSUE";
 
-function fallbackCards() {
-  return Array.from({ length: CARD_COUNT }, (_, i) => ({
-    badge: i === 0 ? "JAPAN ISSUE" : `TIP ${i}`,
-    title: i === 0 ? topic : `見出し ${i}`,
-    body: "ここに本文を入力してください。",
-  }));
+function fallbackCard() {
+  return {
+    category: options.category || "話題",
+    headline_highlight: "ここに強調",
+    headline_rest: "したい一言を入れてください",
+    facts: ["ここに事実1を入力", "ここに事実2を入力", "ここに事実3を入力"],
+  };
 }
 
 async function callClaude(prompt) {
@@ -44,7 +50,7 @@ async function callClaude(prompt) {
     },
     body: JSON.stringify({
       model: "claude-sonnet-5",
-      max_tokens: 1500,
+      max_tokens: 800,
       messages: [{ role: "user", content: prompt }],
     }),
   });
@@ -53,73 +59,86 @@ async function callClaude(prompt) {
   return data.content.map((c) => c.text ?? "").join("\n");
 }
 
-let cards;
+let card;
 if (apiKey) {
-  console.log("ANTHROPIC_API_KEY 감지됨 - 일본어 카드뉴스 카피 생성 중...");
-  const prompt = `あなたは日本向けInstagramカード ニュースのコピーライターです。
-「${topic}」というテーマで、日本の読者向けに投稿する
-${CARD_COUNT}枚のカードニュースを作ってください。
-1枚目は表紙（フックの効いた見出し）、2〜${CARD_COUNT - 1}枚目は内容、最後の1枚はまとめ/CTAにしてください。
-丁寧語で、誇大広告表現（絶対、No.1など）は避けてください。
-必ず次のJSON配列の形式だけで出力してください（説明文なし）:
-[{"badge":"短いラベル","title":"見出し(20文字以内)","body":"本文(40〜60文字)"}, ...]`;
+  console.log("ANTHROPIC_API_KEY 감지됨 - 일본어 뉴스카드 생성 중...");
+  const prompt = `あなたは日本のニュース系Instagramアカウントの編集者です。
+「${topic}」というニュース/話題について、ニュースカード用のテキストを作ってください。
+${options.category ? `カテゴリは「${options.category}」で固定してください。` : "カテゴリ(スキャンダル/天気/芸能/災害/話題 など2〜4文字の短い日本語ラベル)も決めてください。"}
+
+条件:
+- headline_highlight: 見出しの中で赤く強調したい一番インパクトのある一言(10文字以内)
+- headline_rest: 見出しの残りの部分(15〜25文字程度、highlightの直後に自然につながる文)
+- facts: 事実を淡々と伝える箇条書き3〜4個(各20〜35文字、誇張表現や未確認情報は避ける)
+
+次のJSON形式だけで出力してください(説明文なし):
+{"category": "...", "headline_highlight": "...", "headline_rest": "...", "facts": ["...", "...", "..."]}`;
   try {
     const raw = await callClaude(prompt);
-    const jsonMatch = raw.match(/\[[\s\S]*\]/);
-    cards = JSON.parse(jsonMatch ? jsonMatch[0] : raw);
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    card = JSON.parse(jsonMatch ? jsonMatch[0] : raw);
   } catch (err) {
     console.error("AI 생성 실패, 빈 템플릿으로 대체:", err.message);
-    cards = fallbackCards();
+    card = fallbackCard();
   }
 } else {
   console.log("ANTHROPIC_API_KEY 없음 - 빈 템플릿 생성 (수동 작성용)");
-  cards = fallbackCards();
+  card = fallbackCard();
 }
 
-await writeFile(path.join(outDir, "cards.json"), JSON.stringify(cards, null, 2), "utf8");
-console.log(`카드 콘텐츠 저장: ${outDir}/cards.json`);
+await writeFile(path.join(outDir, "card.json"), JSON.stringify(card, null, 2), "utf8");
+console.log(`카드 콘텐츠 저장: ${outDir}/card.json`);
 
 // HTML 렌더링
-const templatePath = path.resolve("templates", "cardnews-template.html");
+const templatePath = path.resolve("templates", "newscard-template.html");
 const template = await readFile(templatePath, "utf8");
 
-const htmlFiles = [];
-for (let i = 0; i < cards.length; i++) {
-  const c = cards[i];
-  const html = template
-    .replaceAll("{{BADGE}}", c.badge ?? "")
-    .replaceAll("{{TITLE}}", c.title ?? "")
-    .replaceAll("{{BODY}}", c.body ?? "")
-    .replaceAll("{{PAGE}}", String(i + 1))
-    .replaceAll("{{TOTAL}}", String(cards.length));
-  const htmlFile = path.join(outDir, `card-${i + 1}.html`);
-  await writeFile(htmlFile, html, "utf8");
-  htmlFiles.push(htmlFile);
+let photoTag;
+if (options.photo) {
+  const photoAbs = path.resolve(options.photo);
+  if (!existsSync(photoAbs)) {
+    console.error(`--photo 경로를 찾을 수 없습니다: ${photoAbs}`);
+    process.exit(1);
+  }
+  photoTag = `<img class="photo" src="file://${photoAbs}" />`;
+} else {
+  photoTag = `<div class="photo-placeholder">写真を追加してください (--photo)</div>`;
+  console.log("주의: --photo를 지정하지 않아 자리표시자 배경으로 생성됩니다. 실제 게시 전 관련 사진을 넣어주세요.");
 }
-console.log(`HTML 카드 ${htmlFiles.length}장 생성 완료`);
 
-// PNG 렌더링: puppeteer가 있으면 그걸 쓰고, 없으면 로컬에 설치된 Chrome/Chromium을
-// 헤드리스 CLI로 직접 호출해서 렌더링합니다 (별도 설치 없이도 되는 경우가 많음).
+const factsHtml = (card.facts || []).map((f) => `<li>${escapeHtml(f)}</li>`).join("\n      ");
+
+const html = template
+  .replaceAll("{{PHOTO_TAG}}", photoTag)
+  .replaceAll("{{BRAND}}", escapeHtml(BRAND))
+  .replaceAll("{{CATEGORY}}", escapeHtml(card.category || ""))
+  .replaceAll("{{HEADLINE_HIGHLIGHT}}", escapeHtml(card.headline_highlight || ""))
+  .replaceAll("{{HEADLINE_REST}}", escapeHtml(card.headline_rest || ""))
+  .replaceAll("{{FACTS}}", factsHtml);
+
+const htmlFile = path.join(outDir, "card.html");
+await writeFile(htmlFile, html, "utf8");
+console.log(`HTML 카드 생성 완료: ${htmlFile}`);
+
+// PNG 렌더링: puppeteer가 있으면 그걸 쓰고, 없으면 로컬 Chrome/Chromium을 CLI로 직접 호출
+const pngFile = path.join(outDir, "card.png");
 try {
-  await renderWithPuppeteer(htmlFiles, outDir);
+  await renderWithPuppeteer(htmlFile, pngFile);
 } catch {
   const chrome = await findChromeBinary();
   if (chrome) {
     console.log(`puppeteer 미설치 - 로컬 Chrome(${chrome})으로 PNG 렌더링 중...`);
-    for (let i = 0; i < htmlFiles.length; i++) {
-      const pngFile = path.join(outDir, `card-${i + 1}.png`);
-      await run(chrome, [
-        "--headless",
-        "--disable-gpu",
-        "--no-sandbox",
-        "--hide-scrollbars",
-        "--window-size=1080,1350",
-        `--screenshot=${pngFile}`,
-        `file://${htmlFiles[i]}`,
-      ]);
-      console.log(`  -> ${pngFile}`);
-    }
-    console.log("PNG 렌더링 완료. 이 폴더를 tools/instagram-publish/publish.mjs 에 넘기면 바로 발행할 수 있습니다.");
+    await run(chrome, [
+      "--headless",
+      "--disable-gpu",
+      "--no-sandbox",
+      "--hide-scrollbars",
+      "--window-size=1080,1350",
+      `--screenshot=${pngFile}`,
+      `file://${htmlFile}`,
+    ]);
+    console.log(`PNG 생성 완료: ${pngFile}`);
+    console.log("이 폴더를 tools/instagram-publish/publish.mjs 에 넘기면 바로 발행할 수 있습니다.");
   } else {
     console.log(
       "PNG 렌더링을 건너뜁니다 (puppeteer도, 로컬 Chrome/Chromium도 찾지 못했습니다).\n" +
@@ -128,20 +147,18 @@ try {
   }
 }
 
-async function renderWithPuppeteer(htmlFiles, outDir) {
+// ---- helpers ----
+
+async function renderWithPuppeteer(htmlFile, pngFile) {
   const puppeteer = await import("puppeteer");
   console.log("puppeteer 감지됨 - PNG 렌더링 중...");
   const browser = await puppeteer.default.launch();
   const page = await browser.newPage();
   await page.setViewport({ width: 1080, height: 1350 });
-  for (let i = 0; i < htmlFiles.length; i++) {
-    await page.goto(`file://${htmlFiles[i]}`, { waitUntil: "networkidle0" });
-    const pngFile = path.join(outDir, `card-${i + 1}.png`);
-    await page.screenshot({ path: pngFile });
-    console.log(`  -> ${pngFile}`);
-  }
+  await page.goto(`file://${htmlFile}`, { waitUntil: "networkidle0" });
+  await page.screenshot({ path: pngFile });
   await browser.close();
-  console.log("PNG 렌더링 완료. 이 폴더를 tools/instagram-publish/publish.mjs 에 넘기면 바로 발행할 수 있습니다.");
+  console.log(`PNG 생성 완료: ${pngFile}`);
 }
 
 async function findChromeBinary() {
@@ -166,4 +183,19 @@ async function findChromeBinary() {
     }
   }
   return null;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+
+function parseArgs(argv) {
+  const options = {};
+  const rest = [];
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === "--category") options.category = argv[++i];
+    else if (argv[i] === "--photo") options.photo = argv[++i];
+    else rest.push(argv[i]);
+  }
+  return { topic: rest.join(" ").trim(), options };
 }

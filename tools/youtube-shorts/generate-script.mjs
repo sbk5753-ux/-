@@ -1,43 +1,43 @@
 #!/usr/bin/env node
-// 일본 랭킹형 유튜브 쇼츠 대본 생성기
-// 사용법: node generate-script.mjs "고양이가 사람보다 뛰어난 능력 TOP5"
-//   ANTHROPIC_API_KEY가 있으면 일본어 대본을 AI로 생성합니다.
+// 밈 자막 컴필레이션 쇼츠 대본 생성기 (simkoongzzal 스타일: 실제 영상 클립 +
+// 굵은 외곽선 자막, 나레이션 없음, 테마별 컴필레이션)
+//
+// 사용법: node generate-script.mjs "안 웃을 수 없는 동물들" [--count 6]
+//   ANTHROPIC_API_KEY가 있으면 클립별 밈 자막을 한국어로 자동 생성합니다.
 //   없으면 채워 넣을 빈 템플릿을 생성합니다.
 //
-// 주의: 여기서 나온 대본은 "초안"입니다. docs/AUTOMATION-GUIDE.md 3-2절의
-// 유튜브 2026 정책(반복/비authentic 콘텐츠 규제)에 따라, 업로드 전에
-// 반드시 채널만의 코멘트/관점/편집을 더해서 사용하세요.
+// 결과물은 "대본"이 아니라 "자막 + 어떤 영상을 구해야 하는지"입니다.
+// 실제 영상 클립은 직접 촬영하거나, 라이선스가 명확한 소스에서 구해서
+// tools/youtube-shorts/assemble-video.mjs 에 넘기세요 (README.md 저작권 안내 참고).
 
 import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 
-const topic = process.argv.slice(2).join(" ").trim();
-if (!topic) {
-  console.error('사용법: node generate-script.mjs "랭킹 주제"');
+const args = process.argv.slice(2);
+const countIdx = args.indexOf("--count");
+const count = countIdx >= 0 ? parseInt(args[countIdx + 1], 10) : 6;
+const theme = args.filter((_, i) => i !== countIdx && i !== countIdx + 1).join(" ").trim();
+
+if (!theme) {
+  console.error('사용법: node generate-script.mjs "테마 (예: 안 웃을 수 없는 동물들)" [--count 6]');
   process.exit(1);
 }
 
 const today = new Date().toISOString().slice(0, 10);
-const slug = topic.replace(/[^\p{L}\p{N}\s-]/gu, "").trim().replace(/\s+/g, "-").toLowerCase();
+const slug = theme.replace(/[^\p{L}\p{N}\s-]/gu, "").trim().replace(/\s+/g, "-").toLowerCase();
 const outDir = path.resolve("output", `${today}-${slug || "short"}`);
 await mkdir(outDir, { recursive: true });
 
 const apiKey = process.env.ANTHROPIC_API_KEY;
-const RANK_COUNT = 5;
 
 function fallbackScript() {
   return {
-    title: topic,
-    hook: "ここにフック(最初の3秒で興味を引く一言)を入力してください。",
-    items: Array.from({ length: RANK_COUNT }, (_, i) => ({
-      rank: RANK_COUNT - i,
-      narration: "ここにナレーションを入力してください。",
-      onscreen_text: `第${RANK_COUNT - i}位`,
+    series_title: theme,
+    clips: Array.from({ length: count }, (_, i) => ({
+      index: i,
+      caption: "여기에 짧고 임팩트 있는 자막을 입력하세요",
+      footage_hint: "여기에 이 자막과 어울리는 영상 소재를 설명하세요 (예: 강아지가 놀라는 장면)",
     })),
-    outro: {
-      narration: "最後まで見てくれてありがとうございます。チャンネル登録よろしくお願いします。",
-      onscreen_text: "チャンネル登録お願いします！",
-    },
   };
 }
 
@@ -51,7 +51,7 @@ async function callClaude(prompt) {
     },
     body: JSON.stringify({
       model: "claude-sonnet-5",
-      max_tokens: 1800,
+      max_tokens: 1200,
       messages: [{ role: "user", content: prompt }],
     }),
   });
@@ -62,26 +62,24 @@ async function callClaude(prompt) {
 
 let script;
 if (apiKey) {
-  console.log("ANTHROPIC_API_KEY 감지됨 - 랭킹 쇼츠 대본 생성 중...");
-  const prompt = `あなたは日本向けYouTubeショート(ランキング形式)の脚本家です。
-「${topic}」というテーマで、${RANK_COUNT}位から1位までのカウントダウン形式のショート動画台本を作ってください。
+  console.log("ANTHROPIC_API_KEY 감지됨 - 밈 자막 생성 중...");
+  const prompt = `너는 한국 유튜브 쇼츠 밈 계정의 자막 작가야. "${theme}"라는 테마로
+영상 클립 ${count}개에 들어갈 짧고 웃긴 자막을 만들어줘.
 
-条件:
-- hook: 最初の3秒で視聴者の興味を引く一言(誇張しすぎない)
-- 各順位のnarrationは2〜3文、話し言葉、丁寧語
-- onscreen_textは画面に大きく出す短いテキスト(10文字以内)
-- outroでチャンネル登録を促す
+스타일 참고 (이런 톤으로): "국가권력급 사슴", "이 것은 '홀'이라는 것이다", "범 내려온다",
+"파리를 길들이면 생기는 일", "이러다가는 다 죽어" — 반말체, 과장·아이러니·드립 섞은
+짧은 한 줄(10자 내외), 영상 속 상황을 재치있게 리액션하는 느낌.
 
-次のJSON形式だけで出力してください(説明文なし):
+각 클립마다 어떤 영상 소재가 필요한지(footage_hint)도 구체적으로 설명해줘
+(실제로 이 소재를 촬영하거나 구해야 하니까 상황을 명확하게).
+
+다음 JSON 형식으로만 출력해줘 (설명 없이):
 {
-  "title": "動画タイトル",
-  "hook": "...",
-  "items": [
-    {"rank": ${RANK_COUNT}, "narration": "...", "onscreen_text": "..."},
+  "series_title": "${theme}",
+  "clips": [
+    {"index": 0, "caption": "...", "footage_hint": "..."},
     ...
-    {"rank": 1, "narration": "...", "onscreen_text": "..."}
-  ],
-  "outro": {"narration": "...", "onscreen_text": "..."}
+  ]
 }`;
   try {
     const raw = await callClaude(prompt);
@@ -99,4 +97,7 @@ if (apiKey) {
 const outFile = path.join(outDir, "script.json");
 await writeFile(outFile, JSON.stringify(script, null, 2), "utf8");
 console.log(`대본 생성 완료: ${outFile}`);
-console.log(`다음 단계: node tts-voicevox.mjs --script ${outFile}`);
+console.log(`\n다음 단계:`);
+console.log(`1. script.json의 footage_hint를 참고해서 영상 클립을 준비하세요 (직접 촬영 또는 라이선스 명확한 소스)`);
+console.log(`2. 클립을 00.mp4, 01.mp4, ... 이름으로 폴더 하나에 모으세요 (클립 개수 = ${script.clips.length}개)`);
+console.log(`3. node assemble-video.mjs --script ${outFile} --footage <클립폴더>`);
