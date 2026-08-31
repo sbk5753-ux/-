@@ -10,6 +10,7 @@
 | 폴더 | 내용 |
 |---|---|
 | [`docs/`](docs/AUTOMATION-GUIDE.md) | 전체 전략·실행 가이드 (필독) |
+| [`docs/PRODUCT-IDEAS.md`](docs/PRODUCT-IDEAS.md) | 자체 상품 기획 가이드 + 2026 트렌드 기반 아이디어 뱅크 |
 | [`tools/content-generator/`](tools/content-generator) | 블로그 글·일본어 카드뉴스 초안 생성 (AI 보조) |
 | [`tools/instagram-publish/`](tools/instagram-publish) | 인스타그램 카드뉴스 자동 발행 (Meta Graph API) |
 | [`tools/naver-blog/`](tools/naver-blog) | 네이버 블로그 연동 가이드 + 실험적 발행 스크립트 |
@@ -35,3 +36,4 @@ cd site && python3 -m http.server 8080
 - [ ] Meta 앱 등록 후 `tools/instagram-publish`로 첫 자동 발행 테스트
 - [ ] 매일 콘텐츠 생성을 자동 알림으로 받도록 GitHub Actions cron 추가 (요청 시 진행)
 - [ ] 마켓플레이스(스마트스토어 등)로 첫 상품 테스트 판매 후, 자사몰 확장 여부 결정
+- [ ] `docs/PRODUCT-IDEAS.md`에서 아이디어 하나 선정 후 상세 상품 기획서 작성 (요청 시 진행)
