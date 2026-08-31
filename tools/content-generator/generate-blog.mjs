@@ -17,11 +17,14 @@ const today = new Date().toISOString().slice(0, 10);
 const outDir = path.resolve("output", "blog");
 await mkdir(outDir, { recursive: true });
 
-const slug = keyword
-  .replace(/[^\p{L}\p{N}\s-]/gu, "")
+// 한글/일본어 등 비ASCII 제목은 슬러그에서 제외 (일부 도구/셸에서 비ASCII 파일 경로가
+// 깨지는 문제를 피하기 위함). 라틴 문자가 없으면 짧은 타임스탬프로 대체.
+const asciiSlug = keyword
+  .toLowerCase()
+  .replace(/[^a-z0-9\s-]/g, "")
   .trim()
-  .replace(/\s+/g, "-")
-  .toLowerCase();
+  .replace(/\s+/g, "-");
+const slug = asciiSlug || `post-${Date.now().toString(36)}`;
 const outFile = path.join(outDir, `${today}-${slug || "post"}.md`);
 
 const apiKey = process.env.ANTHROPIC_API_KEY;

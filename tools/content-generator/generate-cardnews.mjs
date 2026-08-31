@@ -24,7 +24,10 @@ if (!topic) {
 }
 
 const today = new Date().toISOString().slice(0, 10);
-const slug = topic.replace(/[^\p{L}\p{N}\s-]/gu, "").trim().replace(/\s+/g, "-").toLowerCase();
+// 일본어 등 비ASCII 소재명은 슬러그에서 제외 (일부 도구/셸에서 비ASCII 파일 경로가
+// 깨지는 문제를 피하기 위함). 라틴 문자가 없으면 짧은 타임스탬프로 대체.
+const asciiSlug = topic.toLowerCase().replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-");
+const slug = asciiSlug || `card-${Date.now().toString(36)}`;
 const outDir = path.resolve("output", "newscard", `${today}-${slug || "card"}`);
 await mkdir(outDir, { recursive: true });
 
