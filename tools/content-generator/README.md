@@ -5,9 +5,9 @@
 ## 설치
 ```bash
 cd tools/content-generator
-npm install          # puppeteer (카드뉴스 PNG 렌더링용, 없어도 HTML까지는 생성됨)
 cp .env.example .env # ANTHROPIC_API_KEY 입력 시 AI 자동 초안 생성
 ```
+`npm install`(puppeteer)은 선택입니다 — 없어도 로컬에 Chrome/Chromium이 설치되어 있으면 카드뉴스 PNG까지 자동으로 렌더링됩니다 (`CHROME_PATH` 환경변수로 직접 경로를 지정할 수도 있음). 아무것도 없으면 HTML까지만 생성됩니다.
 
 ## 블로그 초안 생성
 ```bash
