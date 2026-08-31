@@ -2,14 +2,16 @@
 
 **네이버 블로그 / 일본 이슈 카드뉴스 인스타그램 / 일본 랭킹형 유튜브 쇼츠 / 온라인 사업(아이템 미정)**, 이 네 축을 자동화된 수익 파이프라인으로 키우기 위한 프로젝트입니다. 특정 오프라인 업종과는 무관한 독립 콘텐츠·커머스 사업입니다.
 
-**먼저 읽어보세요 → [`docs/AUTOMATION-GUIDE.md`](docs/AUTOMATION-GUIDE.md)**
-채널별 자동화 방법과 수익화 전략이 상세히 정리되어 있습니다.
+**지금 바로 시작하려면 → [`docs/GETTING-STARTED.md`](docs/GETTING-STARTED.md)**
+4개 채널을 순서대로 오늘부터 실행할 수 있는 체크리스트입니다.
 
 ## 이 저장소 구성
 
 | 폴더 | 내용 |
 |---|---|
-| [`docs/AUTOMATION-GUIDE.md`](docs/AUTOMATION-GUIDE.md) | 전체 전략·실행 가이드 (필독) |
+| [`docs/GETTING-STARTED.md`](docs/GETTING-STARTED.md) | **지금 시작하기** — 4채널 순서별 실행 체크리스트 |
+| [`docs/AUTOMATION-GUIDE.md`](docs/AUTOMATION-GUIDE.md) | 전체 전략·실행 가이드 |
+| [`docs/NAVER-BLOG-SEO.md`](docs/NAVER-BLOG-SEO.md) | 네이버 블로그 조회수 올리는 법 (C-Rank/D.I.A. 알고리즘 기준) |
 | [`docs/PRODUCT-IDEAS.md`](docs/PRODUCT-IDEAS.md) | 온라인 사업 아이템 기획 가이드 + 2026 트렌드 기반 아이디어 뱅크 |
 | [`tools/content-generator/`](tools/content-generator) | 블로그 글·카드뉴스 초안 생성 (AI 보조) |
 | [`tools/instagram-publish/`](tools/instagram-publish) | 인스타그램 카드뉴스 자동 발행 (Meta Graph API) |
