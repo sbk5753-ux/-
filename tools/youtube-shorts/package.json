@@ -1,0 +1,12 @@
+{
+  "name": "youtube-shorts",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "일본 랭킹형 유튜브 쇼츠 대본/음성/영상 자동 생성",
+  "scripts": {
+    "script": "node generate-script.mjs",
+    "tts": "node tts-voicevox.mjs",
+    "assemble": "node assemble-video.mjs"
+  }
+}

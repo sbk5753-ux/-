@@ -23,7 +23,7 @@ const CARD_COUNT = 6;
 
 function fallbackCards() {
   return Array.from({ length: CARD_COUNT }, (_, i) => ({
-    badge: i === 0 ? "CAFE TIPS" : `TIP ${i}`,
+    badge: i === 0 ? "JAPAN ISSUE" : `TIP ${i}`,
     title: i === 0 ? topic : `見出し ${i}`,
     body: "ここに本文を入力してください。",
   }));
@@ -52,7 +52,7 @@ let cards;
 if (apiKey) {
   console.log("ANTHROPIC_API_KEY 감지됨 - 일본어 카드뉴스 카피 생성 중...");
   const prompt = `あなたは日本向けInstagramカード ニュースのコピーライターです。
-「${topic}」というテーマで、カフェオーナーが日本の読者向けに投稿する
+「${topic}」というテーマで、日本の読者向けに投稿する
 ${CARD_COUNT}枚のカードニュースを作ってください。
 1枚目は表紙（フックの効いた見出し）、2〜${CARD_COUNT - 1}枚目は内容、最後の1枚はまとめ/CTAにしてください。
 丁寧語で、誇大広告表現（絶対、No.1など）は避けてください。

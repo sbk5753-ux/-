@@ -1,4 +1,7 @@
 node_modules/
 .env
 tools/content-generator/output/
+tools/youtube-shorts/output/
 *.log
+*.wav
+*.mp4

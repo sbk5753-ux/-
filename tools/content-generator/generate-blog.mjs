@@ -78,7 +78,7 @@ async function callClaude(prompt) {
 let content;
 if (apiKey) {
   console.log("ANTHROPIC_API_KEY 감지됨 - AI 초안 생성 중...");
-  const prompt = `너는 네이버 블로그 SEO 글쓰기 전문가야. 카페를 운영하는 소상공인이 "${keyword}"라는 주제로
+  const prompt = `너는 네이버 블로그 SEO 글쓰기 전문가야. "${keyword}"라는 주제로
 네이버 블로그 글을 쓰려고 해. 아래 형식의 마크다운으로 정확히 작성해줘 (다른 설명 없이 이 형식만):
 
 # [초안] ${keyword}
