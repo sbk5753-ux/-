@@ -105,8 +105,8 @@ if (options.photo) {
   }
   photoTag = `<img class="photo" src="file://${photoAbs}" />`;
 } else {
-  photoTag = `<div class="photo-placeholder">写真を追加してください (--photo)</div>`;
-  console.log("주의: --photo를 지정하지 않아 자리표시자 배경으로 생성됩니다. 실제 게시 전 관련 사진을 넣어주세요.");
+  photoTag = `<div class="photo-placeholder"><span class="watermark">${escapeHtml(BRAND)}</span></div>`;
+  console.log("--photo 없이 생성 - 사진 없이도 바로 게시 가능한 디자인으로 만들어집니다. 나중에라도 관련 사진이 생기면 --photo로 다시 만들 수 있습니다.");
 }
 
 const factsHtml = (card.facts || []).map((f) => `<li>${escapeHtml(f)}</li>`).join("\n      ");

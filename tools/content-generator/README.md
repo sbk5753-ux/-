@@ -26,7 +26,7 @@ node generate-cardnews.mjs "台風14号が九州地方を直撃へ" --category "
 # -> output/newscard/2026-08-31-.../card.png   (1080x1350)
 ```
 - `--category`: 생략하면 AI가 알아서 정합니다 (`スキャンダル` `天気` `芸能` `災害` `話題` 등)
-- `--photo`: 카드 배경으로 쓸 사진 경로. **생략하면 자리표시자 배경으로 생성되니, 게시 전에는 반드시 실제 사진을 넣으세요.**
+- `--photo`: 카드 배경으로 쓸 사진 경로. **생략해도 사진 없이 바로 게시 가능한 완성된 디자인**(어두운 배경 + 브랜드 워터마크)으로 만들어집니다. 관련 사진이 있으면 `--photo`로 더 풍부하게 만들 수 있습니다.
 - PNG는 puppeteer가 있으면 그걸 쓰고, 없으면 로컬 Chrome/Chromium을 자동으로 찾아 렌더링합니다.
 
 생성된 `card.png`는 `tools/instagram-publish/publish.mjs`로 바로 발행할 수 있습니다.

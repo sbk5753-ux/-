@@ -21,18 +21,29 @@
     height: 1350px;
     object-fit: cover;
   }
+  /* 사진이 없을 때도 완성된 느낌을 주는 기본 배경 (디버그 문구 없음, 그대로 게시 가능) */
   .photo-placeholder {
     position: absolute;
     inset: 0;
     width: 1080px;
     height: 1350px;
-    background: linear-gradient(135deg, #23232b, #101014);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #4a4a55;
-    font-size: 28px;
-    letter-spacing: 2px;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(224,39,63,0.16), transparent 45%),
+      radial-gradient(circle at 85% 80%, rgba(224,39,63,0.10), transparent 50%),
+      radial-gradient(rgba(255,255,255,0.06) 1.5px, transparent 1.5px),
+      linear-gradient(160deg, #1c1c22, #0b0b0f 70%);
+    background-size: auto, auto, 28px 28px, auto;
+  }
+  .photo-placeholder .watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-8deg);
+    font-size: 96px;
+    font-weight: 800;
+    letter-spacing: 8px;
+    color: rgba(255,255,255,0.05);
+    white-space: nowrap;
   }
   .scrim {
     position: absolute;
