@@ -1,0 +1,10 @@
+{
+  "name": "instagram-publish",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Meta Graph API로 인스타그램 카드뉴스(캐러셀) 자동 발행",
+  "scripts": {
+    "publish": "node publish.mjs"
+  }
+}

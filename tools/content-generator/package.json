@@ -1,0 +1,14 @@
+{
+  "name": "content-generator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "네이버 블로그 / 인스타 카드뉴스 초안 생성 도구",
+  "scripts": {
+    "blog": "node generate-blog.mjs",
+    "cardnews": "node generate-cardnews.mjs"
+  },
+  "dependencies": {
+    "puppeteer": "^23.0.0"
+  }
+}

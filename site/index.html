@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>브랜드 허브 | 카페에서 시작된 이야기</title>
+<meta name="description" content="네이버 블로그, 인스타그램 카드뉴스, 그리고 곧 만나볼 온라인 스토어까지 - 카페에서 시작된 브랜드 이야기" />
+<link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header class="hero">
+    <nav class="nav">
+      <span class="logo">BRAND NAME</span>
+      <a class="nav-cta" href="#subscribe">오픈 소식 받기</a>
+    </nav>
+    <div class="hero-content">
+      <p class="eyebrow">카페에서 시작해, 온라인으로 넓혀가는 이야기</p>
+      <h1>작은 카페의 노하우를<br />콘텐츠와 상품으로 만듭니다</h1>
+      <p class="hero-sub">
+        매일의 원두, 레시피, 그리고 손님들과의 이야기를 블로그와 카드뉴스로 전하고,
+        곧 온라인 스토어에서 직접 만나요.
+      </p>
+      <div class="hero-links">
+        <a class="btn btn-primary" href="#channels">채널 둘러보기</a>
+        <a class="btn btn-outline" href="#subscribe">스토어 오픈 알림 받기</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="channels" class="channels">
+      <h2>지금 만날 수 있는 곳</h2>
+      <div class="card-grid">
+        <a class="channel-card" href="https://blog.naver.com/YOUR_BLOG_ID" target="_blank" rel="noopener">
+          <span class="channel-badge">NAVER BLOG</span>
+          <h3>네이버 블로그</h3>
+          <p>카페 운영 노하우, 원두·음료 이야기, 상권과 소상공인 경험담을 나눕니다.</p>
+          <span class="channel-link">블로그 방문 →</span>
+        </a>
+        <a class="channel-card" href="https://instagram.com/YOUR_INSTAGRAM_ID" target="_blank" rel="noopener">
+          <span class="channel-badge">INSTAGRAM · JP</span>
+          <h3>인스타그램 카드뉴스</h3>
+          <p>日本の読者向けに、カフェの知識をカードニュース形式でお届けします。</p>
+          <span class="channel-link">인스타그램 방문 →</span>
+        </a>
+        <div class="channel-card channel-card--soon">
+          <span class="channel-badge">COMING SOON</span>
+          <h3>온라인 스토어</h3>
+          <p>블로그와 인스타그램에서 소개한 상품들을 직접 만나볼 수 있는 공간을 준비 중입니다.</p>
+          <span class="channel-link">아래에서 오픈 알림을 받아보세요</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="subscribe" class="subscribe">
+      <h2>온라인 스토어, 가장 먼저 알려드릴게요</h2>
+      <p>오픈 소식과 얼리버드 혜택을 이메일로 받아보세요.</p>
+      <form class="subscribe-form" id="subscribe-form">
+        <input type="email" name="email" placeholder="이메일 주소" required aria-label="이메일 주소" />
+        <button type="submit" class="btn btn-primary">알림 받기</button>
+      </form>
+      <p class="subscribe-note" id="subscribe-note">
+        ※ 이 폼은 기본적으로 저장 기능이 없는 정적 페이지입니다. 실제 운영 시
+        Google Forms / Tally / Cafe24 신청폼 등의 링크로 교체하거나, 백엔드를 연결해
+        주세요 (site/README.md 참고).
+      </p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; <span id="year"></span> BRAND NAME. 문의: contact@example.com</p>
+  </footer>
+
+  <script src="assets/script.js"></script>
+</body>
+</html>
